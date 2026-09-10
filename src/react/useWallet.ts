@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useTipForge } from './DorisioProvider';
+import { useDorisio } from './DorisioProvider';
 import { Wallet } from '../types/models';
 
 export interface UseWalletState {
@@ -37,7 +37,7 @@ export interface UseWalletActions {
  * Manages wallet operations including challenge-response verification with Freighter.
  */
 export function useWallet(): UseWalletState & UseWalletActions {
-  const { client, setError, setIsLoading } = useTipForge();
+  const { client, setError, setIsLoading } = useDorisio();
 
   const [state, setState] = useState<UseWalletState>({
     wallets: [],

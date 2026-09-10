@@ -5,7 +5,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { useTipForge } from './DorisioProvider';
+import { useDorisio } from './DorisioProvider';
 
 export interface CreatorBalance {
   totalEarnings: number;
@@ -58,7 +58,7 @@ export function useCreatorBalance(
   initialCreatorId?: string,
   autoFetch = true
 ): UseCreatorBalanceState & UseCreatorBalanceActions {
-  const { client, setError, setIsLoading } = useTipForge();
+  const { client, setError, setIsLoading } = useDorisio();
 
   const [state, setState] = useState<UseCreatorBalanceState>({
     loading: false,

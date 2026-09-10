@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { useTipForge } from './DorisioProvider';
+import { useDorisio } from './DorisioProvider';
 import { Transaction } from '../types/models';
 import type { CreateTipRequest, BuildTransactionRequest } from '../client/transactions';
 
@@ -74,7 +74,7 @@ export interface UseCreateTipActions {
  * ```
  */
 export function useCreateTip(): UseCreateTipState & UseCreateTipActions {
-  const { client, setError, setIsLoading } = useTipForge();
+  const { client, setError, setIsLoading } = useDorisio();
 
   const [state, setState] = useState<UseCreateTipState>({
     loading: false,

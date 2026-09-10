@@ -5,7 +5,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { useTipForge } from './DorisioProvider';
+import { useDorisio } from './DorisioProvider';
 import { Transaction } from '../types/models';
 
 export interface TransactionHistoryOptions {
@@ -68,7 +68,7 @@ export function useTransactionHistory(
   initialOptions?: TransactionHistoryOptions,
   autoFetch = false
 ): UseTransactionHistoryState & UseTransactionHistoryActions {
-  const { client, setError, setIsLoading } = useTipForge();
+  const { client, setError, setIsLoading } = useDorisio();
 
   const [state, setState] = useState<UseTransactionHistoryState>({
     transactions: [],
