@@ -7,13 +7,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('useWallet Hook', () => {
   let mockClient: any;
-  let mockSetError: any;
-  let mockSetIsLoading: any;
 
   beforeEach(() => {
-    mockSetError = vi.fn();
-    mockSetIsLoading = vi.fn();
-
     mockClient = {
       request: vi.fn(),
     };
@@ -219,10 +214,7 @@ describe('useWallet Hook', () => {
 
       expect(response.data.available).toBe(1000);
       expect(response.data.pending).toBe(50);
-      expect(mockClient.request).toHaveBeenCalledWith(
-        'GET',
-        '/api/v1/wallet/wallet-123/balance'
-      );
+      expect(mockClient.request).toHaveBeenCalledWith('GET', '/api/v1/wallet/wallet-123/balance');
     });
 
     it('should handle balance fetch error', async () => {

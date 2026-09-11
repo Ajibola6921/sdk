@@ -4,39 +4,17 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useCreateTip } from './useCreateTip';
-import { DorisioProvider } from './DorisioProvider';
-import React from 'react';
 
 describe('useCreateTip Hook', () => {
   let mockClient: any;
-  let mockSetError: any;
-  let mockSetIsLoading: any;
 
   beforeEach(() => {
-    mockSetError = vi.fn();
-    mockSetIsLoading = vi.fn();
-
     mockClient = {
       createTip: vi.fn(),
       buildPaymentTransaction: vi.fn(),
       submitPaymentTransaction: vi.fn(),
       checkTransactionConfirmation: vi.fn(),
     };
-
-    // Mock the useTipForge hook
-    vi.mock('./DorisioProvider', async () => {
-      const actual = await vi.importActual('./DorisioProvider');
-      return {
-        ...actual,
-        useTipForge: () => ({
-          client: mockClient,
-          setError: mockSetError,
-          setIsLoading: mockSetIsLoading,
-        }),
-      };
-    });
   });
 
   describe('createTip', () => {

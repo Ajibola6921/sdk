@@ -7,13 +7,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('useTransactionHistory Hook', () => {
   let mockClient: any;
-  let mockSetError: any;
-  let mockSetIsLoading: any;
 
   beforeEach(() => {
-    mockSetError = vi.fn();
-    mockSetIsLoading = vi.fn();
-
     mockClient = {
       request: vi.fn(),
     };
@@ -54,7 +49,10 @@ describe('useTransactionHistory Hook', () => {
         },
       });
 
-      const response = await mockClient.request('GET', '/api/v1/transactions/history?page=2&pageSize=10');
+      const response = await mockClient.request(
+        'GET',
+        '/api/v1/transactions/history?page=2&pageSize=10'
+      );
 
       expect(response.data.page).toBe(2);
       expect(response.data.pageSize).toBe(10);
@@ -143,9 +141,7 @@ describe('useTransactionHistory Hook', () => {
         data: { transactions: [], total: 100, page: 2, pageSize: 20 },
       };
 
-      mockClient.request
-        .mockResolvedValueOnce(page1Response)
-        .mockResolvedValueOnce(page2Response);
+      mockClient.request.mockResolvedValueOnce(page1Response).mockResolvedValueOnce(page2Response);
 
       const response1 = await mockClient.request('GET', '/api/v1/transactions/history?page=1');
       expect(response1.data.page).toBe(1);
@@ -165,9 +161,7 @@ describe('useTransactionHistory Hook', () => {
         data: { transactions: [], total: 100, page: 2, pageSize: 20 },
       };
 
-      mockClient.request
-        .mockResolvedValueOnce(page2Response)
-        .mockResolvedValueOnce(page1Response);
+      mockClient.request.mockResolvedValueOnce(page2Response).mockResolvedValueOnce(page1Response);
 
       const response1 = await mockClient.request('GET', '/api/v1/transactions/history?page=2');
       expect(response1.data.page).toBe(2);
@@ -279,9 +273,7 @@ describe('useTransactionHistory Hook', () => {
         },
       };
 
-      mockClient.request
-        .mockResolvedValueOnce(firstResponse)
-        .mockResolvedValueOnce(secondResponse);
+      mockClient.request.mockResolvedValueOnce(firstResponse).mockResolvedValueOnce(secondResponse);
 
       const response1 = await mockClient.request('GET', '/api/v1/transactions/history');
       expect(response1.data.transactions).toHaveLength(1);

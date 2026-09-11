@@ -7,13 +7,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('useCreatorBalance Hook', () => {
   let mockClient: any;
-  let mockSetError: any;
-  let mockSetIsLoading: any;
 
   beforeEach(() => {
-    mockSetError = vi.fn();
-    mockSetIsLoading = vi.fn();
-
     mockClient = {
       request: vi.fn(),
     };
@@ -88,9 +83,7 @@ describe('useCreatorBalance Hook', () => {
         data: { totalEarnings: 5500, availableBalance: 5000, pendingBalance: 500 },
       };
 
-      mockClient.request
-        .mockResolvedValueOnce(firstResponse)
-        .mockResolvedValueOnce(secondResponse);
+      mockClient.request.mockResolvedValueOnce(firstResponse).mockResolvedValueOnce(secondResponse);
 
       const response1 = await mockClient.request('GET', '/api/v1/wallet/creator-123/balance');
       expect(response1.data.totalEarnings).toBe(5000);

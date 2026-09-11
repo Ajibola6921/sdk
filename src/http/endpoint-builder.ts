@@ -8,6 +8,7 @@ import { HttpClient, RequestOptions } from './http-client';
 import { ResponseNormalizer } from './response-normalizer';
 import { ApiResponse } from '../types';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface EndpointConfig<TRequest = unknown, TResponse = unknown> {
   path: string;
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -18,6 +19,7 @@ export class TypedEndpointBuilder<TRequest = unknown, TResponse = unknown> {
   private config: EndpointConfig<TRequest, TResponse>;
   private httpClient: HttpClient;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(config: EndpointConfig<TRequest, TResponse>, httpClient: HttpClient) {
     this.config = config;
     this.httpClient = httpClient;

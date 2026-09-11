@@ -5,7 +5,6 @@
  */
 
 import { Creator, CreatorProfile } from '../types/models';
-import { CreatorMapper } from '../utils/mappers';
 import { normalizeCreator, normalizeCreators } from '../utils/normalizers';
 import { DorisioClient } from '../client';
 

@@ -59,6 +59,7 @@ export class HttpClient {
    * Remove default header
    */
   removeHeader(key: string): void {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete this.defaultHeaders[key];
   }
 
@@ -69,7 +70,7 @@ export class HttpClient {
     const url = `${this.baseUrl}${path}`;
 
     // Execute request interceptors
-    let finalOptions = await this.interceptors.executeRequestInterceptors(options);
+    const finalOptions = await this.interceptors.executeRequestInterceptors(options);
 
     const headers = { ...this.defaultHeaders, ...finalOptions.headers };
 

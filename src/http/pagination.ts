@@ -4,7 +4,7 @@
  * Helpers for handling paginated API responses.
  */
 
-import { PaginationMeta, PaginatedResponse } from '../types';
+import { PaginationMeta } from '../types';
 
 export interface PaginationOptions {
   page?: number;

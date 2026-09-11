@@ -5,14 +5,20 @@
  */
 
 import { TransactionHistory, TransactionStats } from '../types/models';
-import {
-  normalizeTransactionHistoryResponse,
-  calculateTransactionStats,
-  filterTransactionsByStatus,
-  filterTransactionsByDateRange,
-  groupTransactionsByCreator,
-} from '../utils/transaction-normalizers';
+import { filterTransactionsByDateRange } from '../utils/transaction-normalizers';
 import { DorisioClient } from '../client';
+
+/**
+ * Normalize transaction history response
+ */
+function normalizeTransactionHistory(data: any): TransactionHistory {
+  return {
+    transactions: data.transactions || [],
+    total: data.total || 0,
+    page: data.page || 1,
+    pageSize: data.pageSize || 20,
+  };
+}
 
 /**
  * Get full transaction history with filters
@@ -41,7 +47,7 @@ export async function getFullTransactionHistory(
     throw new Error('Failed to fetch transaction history');
   }
 
-  let history = normalizeTransactionHistory(response.data);
+  const history = normalizeTransactionHistory(response.data);
 
   // Apply date range filter if provided
   if (options?.startDate && options?.endDate) {
