@@ -46,10 +46,10 @@ export async function listCreators(
   }
 
   return {
-    creators: normalizeCreators(response.data.creators || []),
-    total: response.data.total || 0,
-    page: response.data.page || 1,
-    pageSize: response.data.pageSize || 20,
+    creators: normalizeCreators((response.data as any).creators || []),
+    total: (response.data as any).total || 0,
+    page: (response.data as any).page || 1,
+    pageSize: (response.data as any).pageSize || 20,
   };
 }
 
@@ -69,7 +69,7 @@ export async function getCreatorProfile(
   const creator = normalizeCreator(response.data);
   return {
     ...creator,
-    stats: response.data.stats || {
+    stats: (response.data as any).stats || {
       totalTips: 0,
       averageTip: 0,
       lastTipDate: null,

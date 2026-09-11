@@ -52,9 +52,7 @@ describe('Creator Methods', () => {
         error: { message: 'Creator not found' },
       });
 
-      await expect(client.getCreator('creator-invalid')).rejects.toThrow(
-        'Failed to fetch creator'
-      );
+      await expect(client.getCreator('creator-invalid')).rejects.toThrow('Failed to fetch creator');
     });
   });
 
@@ -112,10 +110,7 @@ describe('Creator Methods', () => {
 
       await client.listCreators({ page: 1, pageSize: 15, verified: true });
 
-      expect(mockRequest).toHaveBeenCalledWith(
-        'GET',
-        '/creators?page=1&pageSize=15&verified=true'
-      );
+      expect(mockRequest).toHaveBeenCalledWith('GET', '/creators?page=1&pageSize=15&verified=true');
     });
 
     it('should throw error on failed request', async () => {
@@ -201,7 +196,9 @@ describe('Creator Methods', () => {
         data: mockCreator,
       });
 
-      const result = await client.verifyCreator('creator-123', true);
+      const result = await (
+        client.verifyCreator as (id: string, verified: boolean) => Promise<any>
+      )('creator-123', true);
 
       expect(result.verified).toBe(true);
       expect(mockRequest).toHaveBeenCalledWith('PATCH', '/creators/creator-123/verify', {
@@ -221,7 +218,9 @@ describe('Creator Methods', () => {
         data: mockCreator,
       });
 
-      const result = await client.verifyCreator('creator-123', false);
+      const result = await (
+        client.verifyCreator as (id: string, verified: boolean) => Promise<any>
+      )('creator-123', false);
 
       expect(result.verified).toBe(false);
       expect(mockRequest).toHaveBeenCalledWith('PATCH', '/creators/creator-123/verify', {
@@ -235,9 +234,12 @@ describe('Creator Methods', () => {
         error: { message: 'Unauthorized' },
       });
 
-      await expect(client.verifyCreator('creator-123', true)).rejects.toThrow(
-        'Failed to verify creator'
-      );
+      await expect(
+        (client.verifyCreator as (id: string, verified: boolean) => Promise<any>)(
+          'creator-123',
+          true
+        )
+      ).rejects.toThrow('Failed to verify creator');
     });
   });
 });

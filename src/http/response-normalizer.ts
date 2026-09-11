@@ -26,7 +26,7 @@ export class ResponseNormalizer {
 
     // Already normalized
     if ('success' in obj && 'timestamp' in obj) {
-      return obj as ApiResponse<T>;
+      return obj as unknown as ApiResponse<T>;
     }
 
     // Assume data if no success field

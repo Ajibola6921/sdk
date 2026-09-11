@@ -78,10 +78,10 @@ export async function getTransactionStats(
   }
 
   return {
-    totalTransactions: response.data.totalTransactions || 0,
-    totalAmount: response.data.totalAmount || 0,
-    averageAmount: response.data.averageAmount || 0,
-    lastTransactionDate: response.data.lastTransactionDate || null,
+    totalTransactions: (response.data as any).totalTransactions || 0,
+    totalAmount: (response.data as any).totalAmount || 0,
+    averageAmount: (response.data as any).averageAmount || 0,
+    lastTransactionDate: (response.data as any).lastTransactionDate || null,
   };
 }
 
@@ -104,10 +104,10 @@ export async function getCreatorEarnings(
   }
 
   return {
-    totalEarnings: response.data.totalEarnings || 0,
-    pendingBalance: response.data.pendingBalance || 0,
-    confirmedBalance: response.data.confirmedBalance || 0,
-    transactionCount: response.data.transactionCount || 0,
+    totalEarnings: (response.data as any).totalEarnings || 0,
+    pendingBalance: (response.data as any).pendingBalance || 0,
+    confirmedBalance: (response.data as any).confirmedBalance || 0,
+    transactionCount: (response.data as any).transactionCount || 0,
   };
 }
 
