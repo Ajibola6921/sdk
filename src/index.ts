@@ -72,6 +72,24 @@ export {
   type WalletInfo,
 } from './types/schemas';
 
+// Re-export sandbox utilities
+export { SandboxClient, createSandboxClient, type SandboxConfig } from './sandbox/sandbox-client';
+export * as MockData from './sandbox/mock-data';
+
+// Re-export query utilities
+export {
+  buildQueryString,
+  parsePaginationMeta,
+  listTips,
+  listCreators,
+  listCreatorTips,
+  listVerifiedCreators,
+  createPaginator,
+  Paginator,
+  type QueryOptions,
+  type PaginationResult,
+} from './lib/query-builder';
+
 // Re-export mappers
 export {
   CreatorMapper,
