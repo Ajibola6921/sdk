@@ -59,11 +59,16 @@ describe('Transaction Methods', () => {
       });
 
       expect(result).toBeDefined();
-      expect(mockRequest).toHaveBeenCalledWith('POST', '/api/v1/transactions/tip', {
-        creatorId: 'creator-456',
-        amount: 100,
-        message: 'Great content!',
-      });
+      expect(mockRequest).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/transactions/tip',
+        {
+          creatorId: 'creator-456',
+          amount: 100,
+          message: 'Great content!',
+        },
+        expect.any(Object) // Accept options object
+      );
     });
 
     it('should throw error if creator ID is missing', async () => {
@@ -166,7 +171,10 @@ describe('Transaction Methods', () => {
 
       await client.getTransactionHistory({ page: 2, pageSize: 10 });
 
-      expect(mockRequest).toHaveBeenCalledWith('GET', '/api/v1/transactions/history?page=2&pageSize=10');
+      expect(mockRequest).toHaveBeenCalledWith(
+        'GET',
+        '/api/v1/transactions/history?page=2&pageSize=10'
+      );
     });
 
     it('should throw error on failed request', async () => {
@@ -339,9 +347,13 @@ describe('Transaction Methods', () => {
 
       for (const status of statuses) {
         await client.updateTipStatus('tip-123', status);
-        expect(mockRequest).toHaveBeenLastCalledWith('PATCH', '/api/v1/transactions/tip-123/status', {
-          status,
-        });
+        expect(mockRequest).toHaveBeenLastCalledWith(
+          'PATCH',
+          '/api/v1/transactions/tip-123/status',
+          {
+            status,
+          }
+        );
       }
     });
   });
