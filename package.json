@@ -22,7 +22,9 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write src",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "docs": "typedoc",
+    "docs:watch": "typedoc --watch"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^12.0.0",
@@ -37,6 +39,7 @@
     "prettier": "^3.3.3",
     "react": "^18.3.1",
     "tsup": "^8.0.2",
+    "typedoc": "^0.28.20",
     "typescript": "^5.4.5",
     "vitest": "^1.6.0"
   },

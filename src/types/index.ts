@@ -26,11 +26,29 @@ export type {
 export type { TipRequest, CreateTipRequest } from './requests';
 export type { ApiResponse, PaginationMeta, PaginatedResponse } from './api';
 export {
-  ApiError,
+  DorisioError,
+  AuthError,
+  WalletVerificationError,
+  PaymentError,
   ValidationError,
+  RateLimitError,
+  TimeoutError,
+  ApiError,
   AuthenticationError,
   AuthorizationError,
   NotFoundError,
   NetworkError,
-  TimeoutError,
 } from './errors';
+
+// Schema exports for consumer validation
+export {
+  Schemas,
+  AuthSchemas,
+  PaymentSchemas,
+  CreatorSchemas,
+  WalletSchemas,
+  type CreateTipInput,
+  type TransactionDetails,
+  type CreatorProfile as CreatorProfileSchema,
+  type WalletInfo,
+} from './schemas';

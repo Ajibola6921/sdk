@@ -1,89 +1,125 @@
 /**
- * Error Types
- *
- * Custom error classes for SDK error handling.
+ * Base error class for all SDK errors
  */
+export class DorisioError extends Error {
+  public readonly statusCode?: number;
+  public readonly code?: string;
 
-/**
- * Base API error
- */
-export class ApiError extends Error {
-  constructor(
-    public statusCode: number,
-    message: string,
-    public code: string = 'API_ERROR'
-  ) {
+  constructor(message: string, statusCode?: number, code?: string) {
     super(message);
-    this.name = 'ApiError';
-    Object.setPrototypeOf(this, ApiError.prototype);
+    this.name = this.constructor.name;
+    this.statusCode = statusCode;
+    this.code = code;
+    Error.captureStackTrace(this, this.constructor);
   }
 }
 
 /**
- * Validation error
+ * Authentication-related errors
  */
-export class ValidationError extends Error {
-  constructor(
-    message: string,
-    public details?: Record<string, string>
-  ) {
-    super(message);
+export class AuthError extends DorisioError {
+  constructor(message: string, statusCode?: number, code?: string) {
+    super(message, statusCode, code);
+    this.name = 'AuthError';
+  }
+}
+
+/**
+ * Wallet verification and linking errors
+ */
+export class WalletVerificationError extends DorisioError {
+  public readonly challenge?: string;
+
+  constructor(message: string, statusCode?: number, code?: string, challenge?: string) {
+    super(message, statusCode, code);
+    this.name = 'WalletVerificationError';
+    this.challenge = challenge;
+  }
+}
+
+/**
+ * Payment processing errors
+ */
+export class PaymentError extends DorisioError {
+  public readonly transactionHash?: string;
+
+  constructor(message: string, statusCode?: number, code?: string, transactionHash?: string) {
+    super(message, statusCode, code);
+    this.name = 'PaymentError';
+    this.transactionHash = transactionHash;
+  }
+}
+
+/**
+ * Validation errors for SDK inputs
+ */
+export class ValidationError extends DorisioError {
+  public readonly details?: Record<string, any>;
+
+  constructor(message: string, details?: Record<string, any>) {
+    super(message, 400, 'VALIDATION_ERROR');
     this.name = 'ValidationError';
-    Object.setPrototypeOf(this, ValidationError.prototype);
+    this.details = details;
   }
 }
 
 /**
- * Authentication error
+ * Rate limiting errors
  */
-export class AuthenticationError extends ApiError {
-  constructor(message: string = 'Authentication failed') {
-    super(401, message, 'AUTHENTICATION_ERROR');
-    this.name = 'AuthenticationError';
-    Object.setPrototypeOf(this, AuthenticationError.prototype);
+export class RateLimitError extends DorisioError {
+  public readonly retryAfter?: number;
+
+  constructor(message: string, retryAfter?: number) {
+    super(message, 429, 'RATE_LIMITED');
+    this.name = 'RateLimitError';
+    this.retryAfter = retryAfter;
   }
 }
 
 /**
- * Authorization error
+ * Network/timeout errors
  */
-export class AuthorizationError extends ApiError {
-  constructor(message: string = 'Unauthorized') {
-    super(403, message, 'AUTHORIZATION_ERROR');
-    this.name = 'AuthorizationError';
-    Object.setPrototypeOf(this, AuthorizationError.prototype);
-  }
-}
-
-/**
- * Not found error
- */
-export class NotFoundError extends ApiError {
-  constructor(resource: string) {
-    super(404, `${resource} not found`, 'NOT_FOUND');
-    this.name = 'NotFoundError';
-    Object.setPrototypeOf(this, NotFoundError.prototype);
-  }
-}
-
-/**
- * Network error
- */
-export class NetworkError extends Error {
-  constructor(message: string = 'Network request failed') {
-    super(message);
-    this.name = 'NetworkError';
-    Object.setPrototypeOf(this, NetworkError.prototype);
-  }
-}
-
-/**
- * Timeout error
- */
-export class TimeoutError extends NetworkError {
-  constructor(timeout: number) {
-    super(`Request timeout after ${timeout}ms`);
+export class TimeoutError extends DorisioError {
+  constructor(message: string = 'Request timeout', timeoutMs?: number) {
+    super(message, 408, 'TIMEOUT');
     this.name = 'TimeoutError';
-    Object.setPrototypeOf(this, TimeoutError.prototype);
+  }
+}
+
+/**
+ * Legacy error classes (for backward compatibility)
+ */
+export class ApiError extends DorisioError {
+  constructor(message: string, statusCode?: number, code?: string) {
+    super(message, statusCode, code);
+    this.name = 'ApiError';
+  }
+}
+
+export class AuthenticationError extends DorisioError {
+  constructor(message: string = 'Authentication required') {
+    super(message, 401, 'UNAUTHORIZED');
+    this.name = 'AuthenticationError';
+  }
+}
+
+export class AuthorizationError extends DorisioError {
+  constructor(message: string = 'Insufficient permissions') {
+    super(message, 403, 'FORBIDDEN');
+    this.name = 'AuthorizationError';
+  }
+}
+
+export class NotFoundError extends DorisioError {
+  constructor(message: string = 'Resource not found') {
+    super(message, 404, 'NOT_FOUND');
+    this.name = 'NotFoundError';
+  }
+}
+
+export class NetworkError extends DorisioError {
+  constructor(message: string = 'Network error') {
+    super(message, 0, 'NETWORK_ERROR');
+    this.name = 'NetworkError';
   }
 }

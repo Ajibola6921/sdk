@@ -20,6 +20,11 @@ export {
   NotFoundError,
   NetworkError,
   TimeoutError,
+  DorisioError,
+  AuthError,
+  WalletVerificationError,
+  PaymentError,
+  RateLimitError,
 } from './types/errors';
 
 // Re-export domain models
@@ -45,6 +50,27 @@ export type {
 
 // Re-export utils
 export { ApiErrorHandler, RequestValidator } from './utils';
+
+// Re-export webhook utilities
+export {
+  verifyWebhookSignature,
+  parseWebhookPayload,
+  WebhookEventType,
+  type WebhookPayload,
+  type WebhookEventHandler,
+} from './utils/webhook-verifier';
+
+// Re-export validation schemas for consumer use
+export {
+  Schemas,
+  AuthSchemas,
+  PaymentSchemas,
+  CreatorSchemas,
+  WalletSchemas,
+  type CreateTipInput,
+  type TransactionDetails,
+  type WalletInfo,
+} from './types/schemas';
 
 // Re-export mappers
 export {

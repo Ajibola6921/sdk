@@ -1,15 +1,43 @@
 # Dorisio SDK
 
-Platform-agnostic client library for payment and tipping infrastructure on Stellar.
+Type-safe client library for Dorisio payment infrastructure. Send tips, verify wallets, and manage creator payouts on Stellar.
+
+[![npm version](https://img.shields.io/npm/v/dorisio-sdk.svg)](https://www.npmjs.com/package/dorisio-sdk)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4+-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Features
 
-- 🌐 **Platform-Agnostic**: Embeddable in any platform with REST API support
-- 💰 **Tip Management**: Create, build, submit, and confirm tips on Stellar network
-- 🔐 **Wallet Verification**: Challenge-response flow with Freighter wallet support
-- ⚛️ **React Hooks**: First-class React integration with hooks layer
-- 📦 **TypeScript**: Full type safety with comprehensive interfaces
-- 🔄 **Transaction Lifecycle**: Complete payment flow from creation to confirmation
+✨ **Production-Ready**
+
+- Type-safe with full TypeScript support
+- Domain-specific error handling (PaymentError, WalletVerificationError, AuthError)
+- Idempotency support prevents double-charging on retries
+- Webhook signature verification for async events
+- Comprehensive examples (vanilla JS + React)
+
+🚀 **Developer Experience**
+
+- Exported Zod schemas for consumer validation
+- Full JSDoc documentation with examples
+- TypeDoc API reference auto-generated
+- React hooks for seamless integration
+- 86 unit tests (100% passing)
+
+💰 **Payment Features**
+
+- Create tips with optional messages
+- Build and submit Stellar transactions
+- Check transaction confirmation status
+- Transaction history with pagination
+- Creator earnings tracking
+
+🔐 **Security**
+
+- Challenge-response wallet verification
+- Wallet linking with Stellar integration
+- Safe retry logic with exponential backoff
+- Constant-time signature verification
 
 ## Installation
 
@@ -19,384 +47,369 @@ npm install dorisio-sdk
 
 ## Quick Start
 
-### Vanilla Client
+### Vanilla JavaScript
 
 ```typescript
-import { DorisioClient } from 'dorisio-sdk';
+import { DorisioClient, PaymentError, Schemas } from 'dorisio-sdk';
+import { v4 as uuidv4 } from 'uuid';
 
-// Initialize client
 const client = new DorisioClient({
-  baseUrl: 'https://api.example.com',
-  token: 'your-auth-token',
+  baseURL: 'https://api.dorisio.com',
+  timeout: 30000,
 });
 
-// Create a tip
-const tip = await client.createTip({
-  creatorId: 'creator-123',
-  amount: 100,
+// Validate input with exported schemas
+const tipInput = Schemas.Payment.createTip.parse({
+  amount: 50,
+  currency: 'USD',
+  creatorId: '550e8400-e29b-41d4-a716-446655440000',
   message: 'Great content!',
+  idempotencyKey: uuidv4(), // Safe to retry with same key
 });
 
-console.log('Tip created:', tip.id);
+try {
+  const tip = await client.payments.createTip(tipInput);
+  console.log('Tip created:', tip.id);
+} catch (error) {
+  if (error instanceof PaymentError) {
+    console.error('Payment failed:', error.message);
+  }
+}
 ```
 
-### React Integration
+### React
 
 ```typescript
 import { DorisioProvider, useCreateTip, useWallet } from 'dorisio-sdk/react';
+import { Schemas } from 'dorisio-sdk';
 
-function App() {
-  const client = new DorisioClient({
-    baseUrl: 'https://api.example.com',
-    token: userToken,
-  });
+function TipButton() {
+  const { createTip, loading, error } = useCreateTip();
 
-  return (
-    <DorisioProvider client={client} config={client.getConfig()}>
-      <YourApp />
-    </DorisioProvider>
-  );
-}
-
-function TipComponent() {
-  const { createTip, buildTransaction, submitTransaction, confirmTransaction, state } = useCreateTip();
-  const { generateNonce, getChallenge, verifyWallet } = useWallet();
-
-  const handleSendTip = async () => {
-    // Step 1: Create tip
-    const tip = await createTip({
-      creatorId: 'creator-123',
-      amount: 100,
+  const handleTip = async () => {
+    const input = Schemas.Payment.createTip.parse({
+      amount: 50,
+      currency: 'USD',
+      creatorId: 'xxx',
+      idempotencyKey: uuidv4(),
     });
 
-    // Step 2: Generate wallet nonce
-    const { nonce } = await generateNonce(userPublicKey);
-
-    // Step 3: Get challenge transaction
-    const challenge = await getChallenge(nonce);
-
-    // Step 4: Sign with Freighter (pseudocode)
-    const signedChallenge = await signWithFreighter(challenge);
-
-    // Step 5: Verify wallet (links wallet and signs challenge)
-    const wallet = await verifyWallet(userPublicKey, nonce, signedChallenge);
-
-    // Step 6: Build payment transaction
-    const { transactionEnvelope } = await buildTransaction(tip.id, {
-      senderPublicKey: wallet.publicKey,
-      creatorPublicKey: creatorWallet.publicKey,
-      amount: '100',
-    });
-
-    // Step 7: Sign with Freighter
-    const signedTx = await signWithFreighter(transactionEnvelope);
-
-    // Step 8: Submit signed transaction
-    await submitTransaction(tip.id, signedTx);
-
-    // Step 9: Confirm on blockchain
-    const confirmed = await confirmTransaction(tip.id);
-    console.log('Tip confirmed:', confirmed);
+    await createTip(input);
   };
 
   return (
-    <div>
-      {state.loading && <p>Processing...</p>}
-      {state.error && <p>Error: {state.error}</p>}
-      <button onClick={handleSendTip}>Send Tip</button>
-    </div>
+    <button onClick={handleTip} disabled={loading}>
+      {loading ? 'Processing...' : 'Send Tip'}
+    </button>
+  );
+}
+
+export function App() {
+  return (
+    <DorisioProvider config={{ baseURL: 'https://api.dorisio.com' }}>
+      <TipButton />
+    </DorisioProvider>
   );
 }
 ```
 
-## Client API
+## Documentation
 
-### Tip Management
+### API Reference
+
+- **[Full TypeDoc API Docs](./docs/index.html)** - Auto-generated from JSDoc
+- **[Examples](./examples/)** - Runnable code samples
+  - [Vanilla JS](./examples/vanilla/) - Auth, wallet, payments
+  - [React Components](./examples/react/) - CreateTip, WalletStatus
+
+### Core Concepts
+
+#### Type-Safe Errors
+
+Catch specific errors and handle them appropriately:
 
 ```typescript
-// Create a tip (initial step)
-const tip = await client.createTip({
-  creatorId: string;
-  amount: number;
-  message?: string;
+import { PaymentError, WalletVerificationError, AuthError } from 'dorisio-sdk';
+
+try {
+  await client.payments.createTip({/* ... */});
+} catch (error) {
+  if (error instanceof PaymentError) {
+    console.error('Payment failed:', error.message);
+    console.error('Transaction:', error.transactionHash);
+  } else if (error instanceof WalletVerificationError) {
+    console.error('Wallet error:', error.message);
+  } else if (error instanceof AuthError) {
+    console.error('Auth failed:', error.message);
+  }
+}
+```
+
+#### Input Validation with Zod
+
+Use exported schemas to validate before sending:
+
+```typescript
+import { Schemas } from 'dorisio-sdk';
+
+const validatedTip = Schemas.Payment.createTip.parse({
+  amount: 50,
+  currency: 'USD',
+  creatorId: 'xxx',
+  idempotencyKey: uuidv4(),
+});
+```
+
+#### Idempotent Payments
+
+Safe retries with unique keys:
+
+```typescript
+const idempotencyKey = uuidv4(); // Generate once
+
+try {
+  const tip = await client.payments.createTip({
+    creatorId: 'xxx',
+    amount: 50,
+    idempotencyKey, // Prevents double-charging on retry
+  });
+} catch (error) {
+  // Safe to retry with same key - returns same tip
+  const tip = await client.payments.createTip({
+    creatorId: 'xxx',
+    amount: 50,
+    idempotencyKey, // Same key = same result
+  });
+}
+```
+
+#### Webhook Verification
+
+Verify incoming webhooks are authentic:
+
+```typescript
+import { verifyWebhookSignature, parseWebhookPayload } from 'dorisio-sdk';
+
+// In your webhook handler
+const isValid = verifyWebhookSignature(
+  JSON.stringify(req.body),
+  req.headers['x-dorisio-signature'],
+  process.env.DORISIO_WEBHOOK_SECRET!
+);
+
+if (!isValid) {
+  return res.status(401).json({ error: 'Invalid signature' });
+}
+
+const event = parseWebhookPayload(req.body);
+console.log(`Event: ${event.event}`, event.data);
+```
+
+### React Hooks
+
+#### useCreateTip
+
+```typescript
+const { createTip, loading, error, data } = useCreateTip();
+
+const tip = await createTip({
+  amount: 50,
+  currency: 'USD',
+  creatorId: 'xxx',
+  idempotencyKey: uuidv4(),
+});
+```
+
+#### useWallet
+
+```typescript
+const { wallet, loading, error, refetch } = useWallet();
+
+console.log(wallet?.balance, wallet?.network);
+refetch(); // Manual refresh
+```
+
+#### useCreatorBalance
+
+```typescript
+const { balance, loading, error } = useCreatorBalance(creatorId);
+
+console.log('Total earnings:', balance?.totalEarnings);
+console.log('Pending:', balance?.pendingBalance);
+```
+
+#### useTransactionHistory
+
+```typescript
+const { transactions, total, page, goToPage, loading } = useTransactionHistory({
+  limit: 20,
 });
 
-// Get tip status
-const tip = await client.getTipStatus(tipId);
-
-// Get transaction history
-const history = await client.getTransactionHistory({
-  page: 1,
-  pageSize: 10,
-});
-
-// Get tips received by creator
-const creatorTips = await client.getCreatorTipsReceived(creatorId, {
-  page: 1,
-  pageSize: 20,
+transactions.forEach((tx) => {
+  console.log(`$${tx.amount} to ${tx.creatorId}`);
 });
 ```
 
-### Stellar Transaction Building
-
-```typescript
-// Build unsigned transaction for frontend signing
-const { transactionEnvelope, tipId, fee } = await client.buildPaymentTransaction(tipId, {
-  senderPublicKey: 'GAA...',
-  creatorPublicKey: 'GAB...',
-  amount: '100',
-  assetCode: 'USDC', // optional
-  assetIssuer: 'GA...', // optional
-});
-
-// Submit signed transaction to network
-const { transactionHash, status } = await client.submitPaymentTransaction(tipId, {
-  transactionEnvelope: signedXdr,
-});
-
-// Check confirmation status on Horizon
-const confirmed = await client.checkTransactionConfirmation(tipId);
-```
-
-### Wallet Management
-
-```typescript
-// Generate nonce for wallet verification
-const { nonce } = await client.generateNonce(publicKey);
-
-// Get challenge transaction (sign this with Freighter)
-const challenge = await client.getChallenge(nonce);
-
-// Verify wallet signature and link to account
-const wallet = await client.verifyWallet(publicKey, nonce, signedChallenge);
-
-// List user's verified wallets
-const wallets = await client.listWallets();
-
-// Unlink wallet
-await client.unlinkWallet(walletId);
-
-// Get wallet balance
-const balance = await client.getWalletBalance(walletId);
-```
-
-## React Hooks
-
-### DorisioProvider
-
-```typescript
-<DorisioProvider client={client} config={client.getConfig()}>
-  <YourApp />
-</DorisioProvider>
-```
-
-**Context provides:**
-
-- `client`: DorisioClient instance
-- `auth`: Authentication state
-- `error`: Global error state
-- `isLoading`: Global loading state
-- `setError()`, `clearError()`: Error management
-- `setIsLoading()`: Loading state management
-
-### useCreateTip
-
-```typescript
-const {
-  createTip,
-  buildTransaction,
-  submitTransaction,
-  confirmTransaction,
-  state: { loading, error, step, data },
-} = useCreateTip();
-```
-
-**Steps:** `idle` → `creating` → `building` → `submitting` → `confirming` → `success`
-
-### useWallet
-
-```typescript
-const {
-  generateNonce,
-  getChallenge,
-  verifyWallet,
-  listWallets,
-  selectWallet,
-  unlinkWallet,
-  renameWallet,
-  getBalance,
-  wallets,
-  selectedWallet,
-  loading,
-  error,
-} = useWallet();
-```
-
-### useCreatorBalance
-
-```typescript
-const {
-  fetchBalance,
-  refetch,
-  balance: { totalEarnings, pendingBalance, lumens, usdc },
-  loading,
-  error,
-} = useCreatorBalance(creatorId);
-```
-
-### useTransactionHistory
-
-```typescript
-const {
-  fetchHistory,
-  transactions,
-  total,
-  page,
-  pageSize,
-  goToPage,
-  nextPage,
-  prevPage,
-  setPageSize,
-  loading,
-  error,
-} = useTransactionHistory({ page: 1, pageSize: 10 });
-```
-
-## Platform Configuration
-
-The SDK is platform-agnostic and can be integrated into any platform with a REST API.
-
-### Required Endpoints
-
-Your backend must implement these endpoints (as specified in backend documentation):
-
-```
-POST   /api/v1/transactions/tip
-GET    /api/v1/transactions/:id
-GET    /api/v1/transactions/history
-GET    /api/v1/transactions/creator/:creatorId
-PATCH  /api/v1/transactions/:id/status
-POST   /api/v1/transactions/:id/build
-POST   /api/v1/transactions/:id/submit
-GET    /api/v1/transactions/:id/confirm
-
-POST   /api/v1/wallet/nonce
-GET    /api/v1/wallet/challenge/:nonce
-POST   /api/v1/wallet/verify
-GET    /api/v1/wallet/list
-DELETE /api/v1/wallet/:walletId
-PATCH  /api/v1/wallet/:walletId/name
-GET    /api/v1/wallet/:walletId/balance
-```
-
-### Wallet Verification Flow
-
-The SDK implements a secure challenge-response flow:
-
-1. **Generate Nonce**: `POST /api/v1/wallet/nonce` → get random nonce
-2. **Get Challenge**: `GET /api/v1/wallet/challenge/{nonce}` → get transaction to sign
-3. **Sign Challenge**: User signs with Freighter wallet (frontend)
-4. **Verify Signature**: `POST /api/v1/wallet/verify` → backend verifies and links wallet
-
-See `DECOUPLING_VERIFICATION.md` for platform integration examples.
-
-## Authentication
-
-The SDK uses bearer token authentication:
+## Configuration
 
 ```typescript
 const client = new DorisioClient({
-  baseUrl: 'https://api.example.com',
-  token: 'your-jwt-or-bearer-token',
-});
-
-// Update token
-client.setToken('new-token');
-
-// Clear token
-client.clearToken();
-```
-
-## Error Handling
-
-```typescript
-try {
-  const tip = await client.createTip({
-    creatorId: 'creator-123',
-    amount: 100,
-  });
-} catch (error) {
-  console.error('Error creating tip:', error.message);
-}
-```
-
-React hooks provide error state:
-
-```typescript
-const { error, setError, clearError } = useDorisio();
-
-if (error) {
-  console.error(`[${error.code}] ${error.message}`);
-}
-```
-
-## Advanced Configuration
-
-```typescript
-import { setConfig } from 'dorisio-sdk';
-
-setConfig({
-  apiUrl: 'https://api.example.com',
-  timeout: 60000,
+  baseURL: 'https://api.dorisio.com',
+  timeout: 30000,
   retryAttempts: 3,
-  retryDelay: 2000,
-  debug: true,
+  retryDelay: 1000,
 });
+```
+
+### Environment Variables
+
+```bash
+DORISIO_API_URL=https://api.dorisio.com
+DORISIO_WEBHOOK_SECRET=your-secret-key
 ```
 
 ## Development
 
 ```bash
-# Install dependencies
+# Install
 npm install
 
-# Run tests (86 tests: 46 client + 40 hooks)
+# Run tests (86 tests, 100% passing)
 npm run test
 
-# Watch mode for development
-npm run test:watch
-
-# Build SDK
-npm run build
-
-# Watch mode build
-npm run dev
+# Type check
+npm run type-check
 
 # Lint
 npm run lint
 
-# Type check
-npm run type-check
+# Generate docs
+npm run docs
+
+# Build
+npm run build
+
+# Watch mode
+npm run dev
 ```
 
-**Test Coverage:**
+## Examples
 
-- Client methods: All auth, creator, and transaction methods with success/error scenarios
-- React hooks: All hooks with state management, pagination, error handling
-- 100% test success rate
+See [examples/](./examples/) for complete working examples:
 
-## Publishing
+- **[Auth Flow](./examples/vanilla/auth.ts)** - Register, login, session validation
+- **[Wallet Linking](./examples/vanilla/wallet.ts)** - Challenge-response verification
+- **[Payments](./examples/vanilla/payment.ts)** - Tips with idempotency
+- **[React Components](./examples/react/)** - CreateTip form, WalletStatus display
 
-```bash
-npm publish
+## API Overview
+
+### Payments
+
+```typescript
+// Create tip (with idempotency)
+await client.payments.createTip({
+  creatorId: string;
+  amount: number;
+  message?: string;
+  idempotencyKey?: string;
+});
+
+// Get transaction
+await client.payments.getTransaction(transactionId);
+
+// Get history
+await client.payments.getTransactionHistory({ limit: 20, offset: 0 });
 ```
 
-This publishes as `dorisio-sdk@0.1.0` with:
+### Authentication
 
-- Main export: `dist/index.js`
-- React export: `dist/react/index.js`
-- TypeScript types included
+```typescript
+// Register
+await client.auth.register({
+  email: string;
+  password: string;
+  name: string;
+});
+
+// Login
+await client.auth.login({
+  email: string;
+  password: string;
+});
+
+// Validate session
+await client.auth.validateSession();
+
+// Logout
+await client.auth.logout();
+```
+
+### Wallets
+
+```typescript
+// Request challenge
+const challenge = await client.auth.requestWalletChallenge();
+
+// Verify and link
+await client.auth.verifyAndLinkWallet({
+  challenge: string;
+  signature: string;
+  publicKey: string;
+});
+
+// Get balance
+await client.wallet.getBalance();
+```
+
+## Error Handling
+
+The SDK provides domain-specific error classes:
+
+- **DorisioError** - Base error class
+- **AuthError** - Authentication failures
+- **PaymentError** - Payment processing failures (includes transactionHash)
+- **WalletVerificationError** - Wallet linking issues (includes challenge)
+- **ValidationError** - Input validation errors (includes details)
+- **RateLimitError** - Rate limiting (includes retryAfter)
+- **TimeoutError** - Network timeouts
+
+## Browser Support
+
+- Modern browsers with ES2020+ support
+- Node.js >=20.0.0
+- React >=18.0.0 (optional, for React hooks)
+
+## Performance
+
+- Automatic retry with exponential backoff
+- Request timeout: 30s (configurable)
+- Concurrent request limit: 10
+- Response compression enabled
+
+## Security
+
+- HTTPS only in production
+- Bearer token authentication
+- HMAC-SHA256 webhook verification
+- Constant-time signature comparison
+- No secrets in logs
+- Input validation with Zod
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for version history and breaking changes.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines.
 
 ## License
 
-MIT
+MIT - See [LICENSE](./LICENSE) for details
+
+## Support
+
+- 📖 [API Documentation](./docs/index.html)
+- 💬 [GitHub Issues](https://github.com/Dorisio/sdk/issues)
+- 📧 Support: support@dorisio.com

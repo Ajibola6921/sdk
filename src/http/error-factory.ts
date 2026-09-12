@@ -39,20 +39,20 @@ export class ApiErrorFactory {
       case 404:
         return new NotFoundError(response?.error || 'Resource');
       case 408:
-        return new TimeoutError(30000) as any;
+        return new TimeoutError(response?.error || 'Request timeout') as any;
       case 429:
-        return new ApiError(429, 'Too many requests', 'RATE_LIMITED');
+        return new ApiError(response?.error || 'Too many requests', 429, 'RATE_LIMITED');
       case 500:
       case 502:
       case 503:
       case 504:
         return new ApiError(
-          status,
           response?.error || 'Server error',
+          status,
           response?.code || 'SERVER_ERROR'
         );
       default:
-        return new ApiError(status, response?.error || 'API error', response?.code || 'API_ERROR');
+        return new ApiError(response?.error || 'API error', status, response?.code || 'API_ERROR');
     }
   }
 
@@ -61,7 +61,7 @@ export class ApiErrorFactory {
    */
   static fromNetworkError(error: Error): Error {
     if (error.message.includes('timeout') || error.message.includes('AbortError')) {
-      return new TimeoutError(30000);
+      return new TimeoutError(error.message || 'Request timeout');
     }
 
     if (error.message.includes('fetch') || error.message.includes('network')) {

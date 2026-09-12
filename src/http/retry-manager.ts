@@ -72,8 +72,8 @@ export class RetryManager {
    * Determine if error is retryable
    */
   static isRetryableError(error: unknown): boolean {
-    if (error instanceof ApiError) {
-      // Retry on server errors (5xx) and rate limits (429)
+    if (error instanceof ApiError && error.statusCode) {
+      // Retry on server errors (5xx) and rate limits (429), timeouts (408)
       return error.statusCode >= 500 || error.statusCode === 429 || error.statusCode === 408;
     }
 

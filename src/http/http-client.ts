@@ -88,7 +88,7 @@ export class HttpClient {
 
         if (!response.ok) {
           const error = await response.json().catch(() => ({}));
-          throw new ApiError(response.status, error.error || 'Request failed', error.code);
+          throw new ApiError(error.error || 'Request failed', response.status, error.code);
         }
 
         const data = (await response.json()) as T;
