@@ -10,8 +10,6 @@ import {
   ValidationError,
   NetworkError,
   TimeoutError,
-  PaymentError,
-  AuthError,
 } from '../types/errors';
 
 export class ApiErrorHandler {

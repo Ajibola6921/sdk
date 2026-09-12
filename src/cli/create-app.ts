@@ -187,7 +187,7 @@ function CreateTipForm() {
       {error && <div className="error">Error: {error.message}</div>}
 
       <button type="submit" disabled={loading}>
-        {loading ? 'Processing...' : \`Send \$\${amount} Tip\`}
+        {loading ? 'Processing...' : \`Send $\${amount} Tip\`}
       </button>
     </form>
   );

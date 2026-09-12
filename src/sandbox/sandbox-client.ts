@@ -51,7 +51,7 @@ export class SandboxClient extends DorisioClient {
 
   constructor(config: SandboxConfig) {
     // Strip sandbox-specific config before passing to parent
-    const { mode, latency, seed, errorRate, ...parentConfig } = config;
+    const { latency, seed, errorRate, ...parentConfig } = config;
 
     super(parentConfig);
 

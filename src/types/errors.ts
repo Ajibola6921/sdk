@@ -80,7 +80,7 @@ export class RateLimitError extends DorisioError {
  * Network/timeout errors
  */
 export class TimeoutError extends DorisioError {
-  constructor(message: string = 'Request timeout', timeoutMs?: number) {
+  constructor(message: string = 'Request timeout', _timeoutMs?: number) {
     super(message, 408, 'TIMEOUT');
     this.name = 'TimeoutError';
   }
