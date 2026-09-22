@@ -21,21 +21,27 @@ export interface ClientConfig {
   baseUrl: string;
   token?: string;
   timeout?: number;
+  mode?: 'production' | 'sandbox';
 }
 
 export class DorisioClient {
   private config: ClientConfig & { timeout: number };
   private httpClient: HttpClient;
   private token?: string;
+  private mode: 'production' | 'sandbox';
 
   constructor(config: ClientConfig) {
+    const mode = config.mode || 'production';
+
     this.config = {
       timeout: config.timeout || 30000,
       baseUrl: config.baseUrl.replace(/\/$/, ''), // Remove trailing slash
       token: config.token,
+      mode,
     };
 
     this.token = config.token;
+    this.mode = mode;
 
     this.httpClient = new HttpClient(this.config.baseUrl, {
       timeout: this.config.timeout,
@@ -160,6 +166,20 @@ export class DorisioClient {
    */
   getConfig(): Readonly<ClientConfig & { timeout: number }> {
     return { ...this.config };
+  }
+
+  /**
+   * Get current mode (production or sandbox)
+   */
+  getMode(): 'production' | 'sandbox' {
+    return this.mode;
+  }
+
+  /**
+   * Check if in sandbox mode
+   */
+  isSandboxMode(): boolean {
+    return this.mode === 'sandbox';
   }
 
   // Creator methods
